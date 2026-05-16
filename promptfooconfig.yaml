@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: Devin CLI evaluation using promptfoo
+
+# Define prompts to test
+prompts:
+  - 'You are a helpful coding assistant. {{query}}'
+  - 'Explain the following code: {{code}}'
+  - 'Write a function to: {{task}}'
+
+# Use devin cli as a provider via script execution
+providers:
+  - id: 'exec: ./devin_provider.sh'
+    config:
+      model: 'SWE-1.6'
+
+# Test cases with variables
+tests:
+  - vars:
+      query: 'What is the difference between let and const in JavaScript?'
+    description: 'JavaScript concepts question'
+
+  - vars:
+      query: 'How do I reverse a string in Python?'
+    description: 'Python coding question'
+
+  - vars:
+      code: |
+        function fibonacci(n) {
+          if (n <= 1) return n;
+          return fibonacci(n - 1) + fibonacci(n - 2);
+        }
+    description: 'Code explanation task'
+
+  - vars:
+      task: 'sort an array of integers in ascending order'
+    description: 'Function writing task'
+
+# Output configuration
+outputPath: results.html
