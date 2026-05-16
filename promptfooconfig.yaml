@@ -14,10 +14,15 @@ providers:
   #   config:
   #     model: 'SWE-1.6'
 
-  # GitHub Copilot CLI provider
-  - id: 'exec: ./gh_copilot_provider.sh'
+  # GitHub Copilot CLI provider (commented out for testing)
+  # - id: 'exec: ./gh_copilot_provider.sh'
+  #   config:
+  #     model: 'claude-haiku-4.5'
+
+  # Claude Code CLI provider
+  - id: 'exec: ./claude_code_provider.sh'
     config:
-      model: 'claude-haiku-4.5'
+      model: 'haiku'
 
 # Test cases with variables
 tests:
