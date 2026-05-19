@@ -85,19 +85,38 @@ Qualitative assessment using predefined criteria and scoring scales.
 ### 3. Script-Based Evaluations
 Custom evaluation logic using JavaScript for complex checks.
 
-**Inline JavaScript:**
+**Current Implementation:**
+The configuration uses inline JavaScript that mirrors functions from `eval-script.js`:
+
 ```yaml
 - vars:
     query: 'Write a function to validate an email address'
+  description: 'Email validation - script-based eval'
   assert:
+    # Check if response contains code formatting (mirrors hasCodeFormatting from eval-script.js)
     - type: javascript
       value: 'output.includes("```") || output.includes("function")'
+    # Check if response is substantial enough (basic quality check)
     - type: javascript
       value: 'output.length > 100'
 ```
 
 **External JavaScript Functions:**
-The `eval-script.js` file contains reusable evaluation functions that can be used for more complex scenarios.
+The `eval-script.js` file contains reusable evaluation functions:
+- `hasCodeFormatting(output)` - Checks for code blocks
+- `explainsWhy(output)` - Checks for reasoning indicators
+- `mentionsBestPractices(output)` - Checks for best practices
+- `isConcise(output)` - Checks response length
+
+**Using External Functions in Production:**
+To use the external functions directly, you would load the script in your JavaScript assertions:
+
+```javascript
+const evalScript = require('./eval-script.js');
+return evalScript.hasCodeFormatting(output);
+```
+
+The current configuration uses inline logic that mirrors these functions for compatibility with promptfoo's evaluation system.
 
 ## PowerShell Provider Scripts
 

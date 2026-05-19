@@ -112,15 +112,20 @@ tests:
   # ========================================
   # SCRIPT-BASED DETERMINISTIC EVALUATIONS
   # ========================================
-  # Using promptfoo's built-in javascript assertions with inline logic
+  # These evaluations use JavaScript logic that mirrors the functions in eval-script.js
+  # The eval-script.js file contains reusable evaluation functions that can be referenced
+  # in different configurations. For production use, you would load the external file:
+  # const evalScript = require('./eval-script.js');
+  # return evalScript.hasCodeFormatting(output);
+
   - vars:
       query: 'Write a function to validate an email address'
     description: 'Email validation - script-based eval'
     assert:
-      # Check if response contains code formatting (simpler check)
+      # Check if response contains code formatting (mirrors hasCodeFormatting from eval-script.js)
       - type: javascript
         value: 'output.includes("```") || output.includes("function")'
-      # Check if response is substantial enough
+      # Check if response is substantial enough (basic quality check)
       - type: javascript
         value: 'output.length > 100'
 
@@ -128,13 +133,13 @@ tests:
       query: 'Explain the difference between == and === in JavaScript'
     description: 'Equality operators - script-based eval'
     assert:
-      # Check if response contains code formatting
+      # Check if response contains code formatting (mirrors hasCodeFormatting from eval-script.js)
       - type: javascript
         value: 'output.includes("```") || output.includes("code")'
-      # Check if response explains the reasoning
+      # Check if response explains the reasoning (mirrors explainsWhy from eval-script.js)
       - type: javascript
         value: 'output.toLowerCase().includes("type") || output.toLowerCase().includes("coercion")'
-      # Check response length for conciseness
+      # Check response length for conciseness (mirrors isConcise from eval-script.js)
       - type: javascript
         value: 'output.length > 100 && output.length < 2000'
 
