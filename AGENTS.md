@@ -5,8 +5,8 @@ This repository contains promptfoo configuration for evaluating AI CLI tools.
 ## Important: Default Configuration
 
 **Before committing any changes, always ensure that Devin CLI is set as the default for both:**
-1. **Provider**: `devin_provider.sh` (bash) or `devin_provider.ps1` (PowerShell)
-2. **Grader**: `devin_grader.sh` (bash) or `devin_grader.ps1` (PowerShell)
+1. **Provider**: `node ./devin_provider.js`
+2. **Grader**: `node ./devin_grader.js`
 
 This ensures consistent evaluation results and maintains the intended baseline configuration.
 
@@ -18,24 +18,34 @@ This ensures consistent evaluation results and maintains the intended baseline c
 
 ## Provider Scripts
 
-### Bash (Linux/Mac)
+### Node.js (Cross-platform) - Active
+- `devin_provider.js` - Devin CLI provider
+- `gh_copilot_provider.js` - GitHub Copilot CLI provider
+- `claude_code_provider.js` - Claude Code CLI provider
+
+### Bash (Linux/Mac) - Legacy
 - `devin_provider.sh` - Devin CLI provider
 - `gh_copilot_provider.sh` - GitHub Copilot CLI provider
 - `claude_code_provider.sh` - Claude Code CLI provider
 
-### PowerShell (Windows)
+### PowerShell (Windows) - Legacy
 - `devin_provider.ps1` - Devin CLI provider
 - `gh_copilot_provider.ps1` - GitHub Copilot CLI provider
 - `claude_code_provider.ps1` - Claude Code CLI provider
 
 ## Grader Scripts
 
-### Bash (Linux/Mac)
+### Node.js (Cross-platform) - Active
+- `devin_grader.js` - Devin CLI grader for llm-rubric assertions
+- `gh_copilot_grader.js` - GitHub Copilot CLI grader for llm-rubric assertions
+- `claude_grader.js` - Claude Code CLI grader for llm-rubric assertions
+
+### Bash (Linux/Mac) - Legacy
 - `devin_grader.sh` - Devin CLI grader for llm-rubric assertions
 - `gh_copilot_grader.sh` - GitHub Copilot CLI grader for llm-rubric assertions
 - `claude_grader.sh` - Claude Code CLI grader for llm-rubric assertions
 
-### PowerShell (Windows)
+### PowerShell (Windows) - Legacy
 - `devin_grader.ps1` - Devin CLI grader for llm-rubric assertions
 - `gh_copilot_grader.ps1` - GitHub Copilot CLI grader for llm-rubric assertions
 - `claude_grader.ps1` - Claude Code CLI grader for llm-rubric assertions

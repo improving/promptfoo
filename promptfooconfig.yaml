@@ -10,7 +10,7 @@ prompts:
 defaultTest:
   options:
     # ========================================
-    # RUBRIC GRADER — BASH (Linux/Mac)
+    # RUBRIC GRADER — NODE.JS (Cross-platform)
     # ========================================
     # All three graders parse the JSON chat array promptfoo sends and route
     # the system + user messages to their respective CLI tool.
@@ -18,7 +18,19 @@ defaultTest:
     # Copilot concatenate system + user into one prompt (no equivalent flag).
     #
     # Devin CLI grader — ACTIVE
-    provider: 'exec: ./devin_grader.sh'
+    provider: 'exec: node ./devin_grader.js'
+    #
+    # GitHub Copilot CLI grader
+    # provider: 'exec: node ./gh_copilot_grader.js'
+    #
+    # Claude Code CLI grader
+    # provider: 'exec: node ./claude_grader.js'
+
+    # ========================================
+    # RUBRIC GRADER — BASH (Linux/Mac) - LEGACY
+    # ========================================
+    # Devin CLI grader
+    # provider: 'exec: ./devin_grader.sh'
     #
     # GitHub Copilot CLI grader
     # provider: 'exec: ./gh_copilot_grader.sh'
@@ -27,7 +39,7 @@ defaultTest:
     # provider: 'exec: ./claude_grader.sh'
 
     # ========================================
-    # RUBRIC GRADER — POWERSHELL (Windows)
+    # RUBRIC GRADER — POWERSHELL (Windows) - LEGACY
     # ========================================
     # Devin CLI grader
     # provider: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_grader.ps1'
@@ -41,12 +53,30 @@ defaultTest:
 # Use devin cli as a provider via script execution
 providers:
   # ========================================
-  # BASH SHELL VERSIONS (Linux/Mac)
+  # NODE.JS VERSIONS (Cross-platform)
   # ========================================
-  # Devin CLI provider (bash version)
-  - id: 'exec: ./devin_provider.sh'
+  # Devin CLI provider — ACTIVE
+  - id: 'exec: node ./devin_provider.js'
     config:
       model: 'SWE-1.6'
+
+  # GitHub Copilot CLI provider
+  # - id: 'exec: node ./gh_copilot_provider.js'
+  #   config:
+  #     model: 'claude-haiku-4.5'
+
+  # Claude Code CLI provider
+  # - id: 'exec: node ./claude_code_provider.js'
+  #   config:
+  #     model: 'haiku'
+
+  # ========================================
+  # BASH SHELL VERSIONS (Linux/Mac) - LEGACY
+  # ========================================
+  # Devin CLI provider (bash version)
+  # - id: 'exec: ./devin_provider.sh'
+  #   config:
+  #     model: 'SWE-1.6'
 
   # GitHub Copilot CLI provider (bash version)
   # - id: 'exec: ./gh_copilot_provider.sh'
@@ -59,7 +89,7 @@ providers:
   #     model: 'haiku'
 
   # ========================================
-  # POWERSHELL VERSIONS (Windows)
+  # POWERSHELL VERSIONS (Windows) - LEGACY
   # ========================================
   # Claude Code CLI provider (PowerShell version) - TESTED ✓
   # - id: 'exec: powershell -ExecutionPolicy Bypass -File ./claude_code_provider.ps1'
@@ -80,9 +110,6 @@ providers:
   # CURRENTLY ACTIVE PROVIDER
   # ========================================
   # Uncomment one of the providers above to use it
-  # - id: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_provider.ps1'
-  #   config:
-  #     model: 'SWE-1.6'
 
 # Test cases with different evaluation types
 tests:
