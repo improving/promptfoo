@@ -10,7 +10,7 @@ prompts:
 defaultTest:
   options:
     # ========================================
-    # RUBRIC GRADER — POWERSHELL (Windows)
+    # RUBRIC GRADER — BASH (Linux/Mac)
     # ========================================
     # All three graders parse the JSON chat array promptfoo sends and route
     # the system + user messages to their respective CLI tool.
@@ -18,13 +18,25 @@ defaultTest:
     # Copilot concatenate system + user into one prompt (no equivalent flag).
     #
     # Devin CLI grader
+    # provider: 'exec: ./devin_grader.sh'
+    #
+    # GitHub Copilot CLI grader
+    # provider: 'exec: ./gh_copilot_grader.sh'
+    #
+    # Claude Code CLI grader — ACTIVE
+    provider: 'exec: ./claude_grader.sh'
+
+    # ========================================
+    # RUBRIC GRADER — POWERSHELL (Windows)
+    # ========================================
+    # Devin CLI grader
     # provider: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_grader.ps1'
     #
     # GitHub Copilot CLI grader
     # provider: 'exec: powershell -ExecutionPolicy Bypass -File ./gh_copilot_grader.ps1'
     #
-    # Claude Code CLI grader — ACTIVE
-    provider: 'exec: powershell -ExecutionPolicy Bypass -File ./claude_grader.ps1'
+    # Claude Code CLI grader
+    # provider: 'exec: powershell -ExecutionPolicy Bypass -File ./claude_grader.ps1'
 
 # Use devin cli as a provider via script execution
 providers:
@@ -32,9 +44,9 @@ providers:
   # BASH SHELL VERSIONS (Linux/Mac)
   # ========================================
   # Devin CLI provider (bash version)
-  # - id: 'exec: ./devin_provider.sh'
-  #   config:
-  #     model: 'SWE-1.6'
+  - id: 'exec: ./devin_provider.sh'
+    config:
+      model: 'SWE-1.6'
 
   # GitHub Copilot CLI provider (bash version)
   # - id: 'exec: ./gh_copilot_provider.sh'
@@ -68,9 +80,9 @@ providers:
   # CURRENTLY ACTIVE PROVIDER
   # ========================================
   # Uncomment one of the providers above to use it
-  - id: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_provider.ps1'
-    config:
-      model: 'SWE-1.6'
+  # - id: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_provider.ps1'
+  #   config:
+  #     model: 'SWE-1.6'
 
 # Test cases with different evaluation types
 tests:
