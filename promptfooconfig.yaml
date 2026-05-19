@@ -1,11 +1,15 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
-description: Devin CLI evaluation using promptfoo
+description: Evaluation Driven Development demonstration with promptfoo
 
-# Define prompts to test
+# Define prompts to test - using external prompt file for EDD
 prompts:
-  - 'You are a helpful coding assistant. {{query}}'
-  - 'Explain the following code: {{code}}'
-  - 'Write a function to: {{task}}'
+  - file://prompt-under-test.md
+
+# External evaluation script for custom deterministic evaluations
+# This script contains custom assertion functions used in tests
+defaultTest:
+  options:
+    rubricPrompt: 'You are an expert evaluator. Rate the following response on a scale of 1-5 based on the provided rubric.'
 
 # Use devin cli as a provider via script execution
 providers:
@@ -49,31 +53,90 @@ providers:
   # CURRENTLY ACTIVE PROVIDER
   # ========================================
   # Uncomment one of the providers above to use it
-  - id: 'exec: powershell -ExecutionPolicy Bypass -File ./claude_code_provider.ps1'
+  - id: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_provider.ps1'
     config:
-      model: 'haiku'
+      model: 'SWE-1.6'
 
-# Test cases with variables
+# Test cases with different evaluation types
 tests:
+  # ========================================
+  # DETERMINISTIC EVALUATIONS (contains/equiv)
+  # ========================================
   - vars:
       query: 'What is the difference between let and const in JavaScript?'
-    description: 'JavaScript concepts question'
+    description: 'JavaScript concepts - deterministic eval'
+    assert:
+      - type: contains
+        value: 'let'
+      - type: contains
+        value: 'const'
+      - type: contains
+        value: 'reassign'
 
   - vars:
       query: 'How do I reverse a string in Python?'
-    description: 'Python coding question'
+    description: 'Python coding - deterministic eval'
+    assert:
+      - type: contains
+        value: 'reverse'
+      - type: contains
+        value: 'python'
+        # Case insensitive
+        ignoreCase: true
+
+  # ========================================
+  # RUBRIC-BASED EVALUATIONS
+  # ========================================
+  - vars:
+      query: 'Explain the concept of recursion in programming'
+    description: 'Recursion explanation - rubric eval'
+    rubric: |
+      Evaluate the response on a scale of 1-5:
+      1. Does it define recursion clearly?
+      2. Does it provide a code example?
+      3. Does it explain the base case and recursive case?
+      4. Does it mention potential issues (stack overflow)?
+      5. Is the explanation easy to understand?
 
   - vars:
-      code: |
-        function fibonacci(n) {
-          if (n <= 1) return n;
-          return fibonacci(n - 1) + fibonacci(n - 2);
-        }
-    description: 'Code explanation task'
+      query: 'What are the best practices for error handling in JavaScript?'
+    description: 'Error handling best practices - rubric eval'
+    rubric: |
+      Rate the response (1-5) based on:
+      1. Coverage of try-catch-finally patterns
+      2. Mention of async/await error handling
+      3. Discussion of error objects and custom errors
+      4. Best practices for logging and monitoring
+      5. Practical examples provided
+
+  # ========================================
+  # SCRIPT-BASED DETERMINISTIC EVALUATIONS
+  # ========================================
+  # Using promptfoo's built-in javascript assertions with inline logic
+  - vars:
+      query: 'Write a function to validate an email address'
+    description: 'Email validation - script-based eval'
+    assert:
+      # Check if response contains code formatting (simpler check)
+      - type: javascript
+        value: 'output.includes("```") || output.includes("function")'
+      # Check if response is substantial enough
+      - type: javascript
+        value: 'output.length > 100'
 
   - vars:
-      task: 'sort an array of integers in ascending order'
-    description: 'Function writing task'
+      query: 'Explain the difference between == and === in JavaScript'
+    description: 'Equality operators - script-based eval'
+    assert:
+      # Check if response contains code formatting
+      - type: javascript
+        value: 'output.includes("```") || output.includes("code")'
+      # Check if response explains the reasoning
+      - type: javascript
+        value: 'output.toLowerCase().includes("type") || output.toLowerCase().includes("coercion")'
+      # Check response length for conciseness
+      - type: javascript
+        value: 'output.length > 100 && output.length < 2000'
 
 # Output configuration
 outputPath: results.html

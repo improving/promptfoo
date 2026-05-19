@@ -1,91 +1,202 @@
-# Promptfoo Config with Devin CLI, GitHub Copilot, and Claude Code
+# Promptfoo EDD Demonstration
 
-This project provides a basic promptfoo configuration that supports Devin CLI, GitHub Copilot CLI, and Claude Code CLI as providers for running LLM evaluations.
+Evaluation Driven Development (EDD) demonstration using promptfoo with multiple CLI providers and evaluation methodologies.
 
-## Files
+## Overview
 
-- `promptfooconfig.yaml` - Main promptfoo configuration file
-- `devin_provider.sh` - Shell script that wraps Devin CLI with model selection support
-- `gh_copilot_provider.sh` - Shell script that wraps GitHub Copilot CLI with model selection support
-- `claude_code_provider.sh` - Shell script that wraps Claude Code CLI with model selection support
+This project demonstrates how to use promptfoo for systematic prompt testing with different AI CLI providers and evaluation types, following Evaluation Driven Development principles.
 
-## Usage
+## Files Structure
 
-1. Ensure you have promptfoo installed:
-   ```bash
-   npm install -g promptfoo
-   ```
+```
+promptfoo/
+├── README.md                    # This file
+├── promptfooconfig.yaml         # Main promptfoo configuration
+├── prompt-under-test.md         # The prompt being tested
+├── eval-script.js               # Custom JavaScript evaluation functions
+├── claude_code_provider.ps1     # Claude Code CLI provider (PowerShell)
+├── devin_provider.ps1           # Devin CLI provider (PowerShell)
+├── gh_copilot_provider.ps1      # GitHub Copilot CLI provider (PowerShell)
+├── claude_code_provider.sh      # Claude Code CLI provider (bash)
+├── devin_provider.sh            # Devin CLI provider (bash)
+└── gh_copilot_provider.sh       # GitHub Copilot CLI provider (bash)
+```
 
-2. Ensure your chosen CLI is installed and configured:
-   - Devin CLI: https://cli.devin.ai
-   - GitHub Copilot CLI: `gh extension install copilot`
-   - Claude Code CLI: https://claude.ai/code
+## Quick Start
 
-3. Run the evaluation:
-   ```bash
-   promptfoo eval
-   ```
+### Run Evaluations
+```bash
+npx promptfoo eval
+```
 
-4. View the results in the generated `results.html` file
+### View Results
+Results are generated in `results.html` after each evaluation run.
 
 ## Configuration
 
-The `promptfooconfig.yaml` file includes:
+### Active Provider
+The configuration currently uses **Devin CLI (PowerShell version)** as the default provider.
 
-- **Prompts**: Three example prompts testing different types of queries
-- **Providers**: Supports Devin CLI, GitHub Copilot CLI, and Claude Code CLI via shell script wrappers
-- **Tests**: Four test cases with different variables (query, code, task)
-- **Output**: Results are saved to `results.html`
+### Available Providers
+All providers have both bash (Linux/Mac) and PowerShell (Windows) versions:
 
-## Provider Selection
+- **Claude Code CLI** - Anthropic's Claude Code assistant
+- **Devin CLI** - Cognition's Devin AI assistant  
+- **GitHub Copilot CLI** - GitHub's Copilot assistant
 
-The configuration includes three providers (Claude Code is currently active for testing):
+To switch providers, edit `promptfooconfig.yaml` and uncomment the desired provider.
 
-### Devin CLI
+## Evaluation Types
+
+This demonstration includes three types of evaluations:
+
+### 1. Deterministic Evaluations (contains/equiv)
+Simple pass/fail checks based on content presence or exact matches.
+
+**Example:**
 ```yaml
-providers:
-  - id: 'exec: ./devin_provider.sh'
-    config:
-      model: 'SWE-1.6'
+- vars:
+    query: 'What is the difference between let and const in JavaScript?'
+  assert:
+    - type: contains
+      value: 'let'
+    - type: contains
+      value: 'const'
+    - type: contains
+      value: 'reassign'
 ```
 
-### GitHub Copilot CLI
+### 2. Rubric-Based Evaluations
+Qualitative assessment using predefined criteria and scoring scales.
+
+**Example:**
 ```yaml
-providers:
-  - id: 'exec: ./gh_copilot_provider.sh'
-    config:
-      model: 'claude-haiku-4.5'
+- vars:
+    query: 'Explain the concept of recursion in programming'
+  rubric: |
+    Evaluate the response on a scale of 1-5:
+    1. Does it define recursion clearly?
+    2. Does it provide a code example?
+    3. Does it explain the base case and recursive case?
+    4. Does it mention potential issues (stack overflow)?
+    5. Is the explanation easy to understand?
 ```
 
-### Claude Code CLI
+### 3. Script-Based Evaluations
+Custom evaluation logic using JavaScript for complex checks.
+
+**Inline JavaScript:**
 ```yaml
-providers:
-  - id: 'exec: ./claude_code_provider.sh'
-    config:
-      model: 'haiku'
+- vars:
+    query: 'Write a function to validate an email address'
+  assert:
+    - type: javascript
+      value: 'output.includes("```") || output.includes("function")'
+    - type: javascript
+      value: 'output.length > 100'
 ```
 
-To switch between providers, comment/uncomment the appropriate provider section in `promptfooconfig.yaml`.
+**External JavaScript Functions:**
+The `eval-script.js` file contains reusable evaluation functions that can be used for more complex scenarios.
 
-## Model Selection
+## PowerShell Provider Scripts
 
-Each provider supports model selection via the `model` config parameter:
+The PowerShell scripts (`*.ps1`) are Windows equivalents of the bash scripts and provide the same functionality:
 
-- **Devin CLI**: Modify the `model` value (e.g., `SWE-1.6`)
-- **GitHub Copilot CLI**: Modify the `model` value (e.g., `claude-haiku-4.5`)
-- **Claude Code CLI**: Modify the `model` value (e.g., `haiku`, `sonnet`)
+- **claude_code_provider.ps1** - Claude Code CLI with model selection
+- **devin_provider.ps1** - Devin CLI with model selection
+- **gh_copilot_provider.ps1** - GitHub Copilot CLI with model selection
 
-The shell scripts read this configuration and pass it to the respective CLI using the appropriate model flag.
+All PowerShell scripts:
+- Use `ConvertFrom-Json` instead of `jq` for JSON parsing
+- Include proper error handling for JSON parsing failures
+- Handle empty config objects correctly
+- Require `-ExecutionPolicy Bypass` flag for Windows execution policies
+
+### Running PowerShell Scripts Directly
+```powershell
+powershell -ExecutionPolicy Bypass -File .\devin_provider.ps1 "Your prompt here" '{"config": {"model": "SWE-1.6"}}' "context"
+```
+
+## Prompt Under Test
+
+The `prompt-under-test.md` file contains the actual prompt being evaluated. Using an external file provides:
+
+- Version control for prompt changes
+- Easy editing without modifying configuration
+- Reusability across different test configurations
+- Clear separation between test logic and prompt content
+
+## EDD Workflow
+
+1. **Define Success Criteria** - Determine what makes a prompt "good" for your use case
+2. **Create Evaluation Tests** - Set up deterministic, rubric, and script-based tests
+3. **Write Initial Prompt** - Create your prompt in the external file
+4. **Run Evaluations** - Test against your criteria
+5. **Iterate** - Refine prompt based on evaluation results
+6. **Regression Test** - Ensure changes don't break existing successful tests
+
+## Test Cases
+
+The current configuration includes 6 test cases:
+
+1. **JavaScript concepts** (deterministic) - Tests let vs const explanation
+2. **Python string reversal** (deterministic) - Tests Python coding knowledge
+3. **Recursion explanation** (rubric) - Evaluates completeness of recursion explanation
+4. **Error handling best practices** (rubric) - Assesses JavaScript error handling knowledge
+5. **Email validation function** (script-based) - Tests code generation quality
+6. **Equality operators** (script-based) - Tests explanation quality with custom assertions
 
 ## Customization
 
-You can modify the configuration to:
+### For Your Own Use Case
 
-- Add more prompts in the `prompts` section
-- Add more test cases in the `tests` section
-- Change the output format (HTML, JSON, CSV)
-- Add assertions to validate responses
-- Switch between Devin CLI, GitHub Copilot CLI, and Claude Code CLI providers
-- Change the model by modifying the `model` value in the provider config
-- Extend any shell script to handle additional OPTIONS or CONTEXT parameters
-- Add multiple providers to compare results side-by-side
+1. Replace `prompt-under-test.md` with your own prompt
+2. Modify test cases in `promptfooconfig.yaml` to match your domain
+3. Add custom evaluation functions to `eval-script.js` as needed
+4. Adjust rubric criteria to reflect your quality standards
+5. Switch to your preferred AI provider in the configuration
+
+### Adding New Evaluation Functions
+
+Edit `eval-script.js` to add custom functions:
+
+```javascript
+module.exports = {
+  yourCustomFunction: (output) => {
+    // Your evaluation logic
+    return {
+      pass: true/false,
+      score: 0-1,
+      reason: 'Explanation of result'
+    };
+  }
+};
+```
+
+## Requirements
+
+- Node.js (for promptfoo)
+- PowerShell (on Windows) or bash (on Linux/Mac)
+- CLI tools for the providers you want to use:
+  - Claude Code CLI (`claude`)
+  - Devin CLI (`devin`)
+  - GitHub Copilot CLI (`gh copilot`)
+
+## Troubleshooting
+
+### PowerShell Execution Policy
+If you get execution policy errors on Windows, use the `-ExecutionPolicy Bypass` flag or run:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### Provider CLI Installation
+Ensure your chosen CLI tool is properly installed and accessible in your PATH.
+
+### JSON Parsing Errors
+The PowerShell scripts include error handling for JSON parsing. If you encounter issues, verify the config format is correct.
+
+## License
+
+This demonstration is provided as-is for educational and development purposes.
