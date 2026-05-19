@@ -9,8 +9,21 @@ prompts:
 # This script contains custom assertion functions used in tests
 defaultTest:
   options:
-    # Use Claude Code CLI as the rubric judge — same provider family as execution,
-    # just evaluating Devin's output rather than generating it.
+    # ========================================
+    # RUBRIC GRADER — POWERSHELL (Windows)
+    # ========================================
+    # All three graders parse the JSON chat array promptfoo sends and route
+    # the system + user messages to their respective CLI tool.
+    # Claude uses --system-prompt to keep instructions clean; Devin and
+    # Copilot concatenate system + user into one prompt (no equivalent flag).
+    #
+    # Devin CLI grader
+    # provider: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_grader.ps1'
+    #
+    # GitHub Copilot CLI grader
+    # provider: 'exec: powershell -ExecutionPolicy Bypass -File ./gh_copilot_grader.ps1'
+    #
+    # Claude Code CLI grader — ACTIVE
     provider: 'exec: powershell -ExecutionPolicy Bypass -File ./claude_grader.ps1'
 
 # Use devin cli as a provider via script execution
