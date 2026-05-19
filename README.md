@@ -14,12 +14,19 @@ promptfoo/
 ├── promptfooconfig.yaml         # Main promptfoo configuration
 ├── prompt-under-test.md         # The prompt being tested
 ├── eval-script.js               # Custom JavaScript evaluation functions
+│
+├── Execution providers (generate responses under test)
 ├── claude_code_provider.ps1     # Claude Code CLI provider (PowerShell)
 ├── devin_provider.ps1           # Devin CLI provider (PowerShell)
 ├── gh_copilot_provider.ps1      # GitHub Copilot CLI provider (PowerShell)
 ├── claude_code_provider.sh      # Claude Code CLI provider (bash)
 ├── devin_provider.sh            # Devin CLI provider (bash)
-└── gh_copilot_provider.sh       # GitHub Copilot CLI provider (bash)
+├── gh_copilot_provider.sh       # GitHub Copilot CLI provider (bash)
+│
+└── Rubric graders (judge LLMs used to score llm-rubric assertions)
+    ├── claude_grader.ps1        # Claude Code CLI grader (PowerShell)
+    ├── devin_grader.ps1         # Devin CLI grader (PowerShell)
+    └── gh_copilot_grader.ps1    # GitHub Copilot CLI grader (PowerShell)
 ```
 
 ## Quick Start
@@ -66,57 +73,115 @@ Simple pass/fail checks based on content presence or exact matches.
       value: 'reassign'
 ```
 
-### 2. Rubric-Based Evaluations
-Qualitative assessment using predefined criteria and scoring scales.
+### 2. Rubric-Based Evaluations (`llm-rubric`)
 
-**Example:**
+Uses a judge LLM to score the response against natural language criteria. Each assertion evaluates a single, independent quality dimension, giving granular pass/fail per dimension in the web UI rather than one opaque score.
+
+#### Grader Provider
+
+The judge LLM is configured under `defaultTest.options.provider`. This project uses `claude_grader.ps1`, which parses the JSON chat array promptfoo sends to graders and passes system and user messages separately via `claude --system-prompt`. Commented alternatives for Devin and GitHub Copilot are in the config.
+
+> **Why a separate grader script?** Promptfoo sends graders a JSON chat array
+> (`[{"role":"system",...}, {"role":"user",...}]`), not a plain text string.
+> A plain execution provider would pass that raw JSON blob as the prompt, confusing
+> the model. The grader scripts parse the array and route each part correctly.
+>
+> Claude supports `--system-prompt` to replace its default context entirely.
+> Devin and Copilot don't have an equivalent flag, so their graders concatenate
+> the system instructions and user message into one combined prompt instead.
+
+#### Assertion Parameters
+
+Each `llm-rubric` assertion accepts these parameters:
+
+| Parameter   | Type          | Required | Description |
+|-------------|---------------|----------|-------------|
+| `value`     | string        | Yes      | The natural language criterion to evaluate. Write it as an observable statement: "The response includes a code example" not "the response is good". |
+| `threshold` | float 0.0–1.0 | No       | Minimum score to pass this assertion. Defaults to `0.5` if omitted. |
+| `metric`    | string        | No       | Label shown in the promptfoo web UI results table — useful for identifying which dimension failed. |
+| `weight`    | number        | No       | Relative importance when computing the test's overall weighted score. `weight: 2` counts twice as much as `weight: 1`. Defaults to `1`. |
+
+#### Example
+
 ```yaml
 - vars:
     query: 'Explain the concept of recursion in programming'
-  rubric: |
-    Evaluate the response on a scale of 1-5:
-    1. Does it define recursion clearly?
-    2. Does it provide a code example?
-    3. Does it explain the base case and recursive case?
-    4. Does it mention potential issues (stack overflow)?
-    5. Is the explanation easy to understand?
+  description: 'Recursion explanation - rubric with per-dimension scoring'
+  assert:
+    # Core definition — highest weight; must score at least 0.7
+    - type: llm-rubric
+      value: The response clearly defines what recursion is in plain language a non-expert could understand
+      threshold: 0.7
+      metric: clarity
+      weight: 2
+
+    # Code example — important for a technical explanation
+    - type: llm-rubric
+      value: The response includes at least one working code example that demonstrates recursion
+      threshold: 0.7
+      metric: code-example
+      weight: 1.5
+
+    # Base/recursive case — critical for correctness; strict threshold
+    - type: llm-rubric
+      value: The response explicitly explains both the base case (stopping condition) and the recursive case
+      threshold: 0.8
+      metric: base-case-explained
+      weight: 2
+
+    # Risks — nice to have; lower threshold and weight
+    - type: llm-rubric
+      value: The response mentions stack overflow or call stack depth as a potential pitfall
+      threshold: 0.4
+      metric: mentions-risks
+      weight: 1
 ```
 
+#### Design Guidance
+
+- **Set `threshold` based on criticality.** Core requirements warrant `0.7`–`0.8`. Nice-to-have criteria can use `0.4`–`0.5`.
+- **Use `weight` to express relative importance.** Don't just vary threshold — a critical dimension should also carry more weight so it influences the overall score proportionally.
+- **One criterion per assertion.** Splitting dimensions into separate `llm-rubric` entries gives individual pass/fail per dimension in the web UI, rather than one opaque rubric score.
+- **Write criteria as observable statements.** "The response includes at least one working code example" is better than "the response is well-explained".
+
 ### 3. Script-Based Evaluations
-Custom evaluation logic using JavaScript for complex checks.
 
-**Current Implementation:**
-The configuration uses inline JavaScript that mirrors functions from `eval-script.js`:
+Custom deterministic evaluation logic written in JavaScript. Functions live in `eval-script.js` and are referenced directly from the config using `file://path:functionName` syntax.
 
+**Example:**
 ```yaml
 - vars:
     query: 'Write a function to validate an email address'
   description: 'Email validation - script-based eval'
   assert:
-    # Check if response contains code formatting (mirrors hasCodeFormatting from eval-script.js)
     - type: javascript
-      value: 'output.includes("```") || output.includes("function")'
-    # Check if response is substantial enough (basic quality check)
+      value: file://eval-script.js:hasCodeFormatting
     - type: javascript
-      value: 'output.length > 100'
+      value: file://eval-script.js:explainsWhy
+    - type: javascript
+      value: file://eval-script.js:mentionsBestPractices
 ```
 
-**External JavaScript Functions:**
-The `eval-script.js` file contains reusable evaluation functions:
-- `hasCodeFormatting(output)` - Checks for code blocks
-- `explainsWhy(output)` - Checks for reasoning indicators
-- `mentionsBestPractices(output)` - Checks for best practices
-- `isConcise(output)` - Checks response length
+**Functions in `eval-script.js`:**
 
-**Using External Functions in Production:**
-To use the external functions directly, you would load the script in your JavaScript assertions:
+| Function | Checks |
+|----------|--------|
+| `hasCodeFormatting(output)` | Response contains a fenced code block |
+| `explainsWhy(output)` | Response includes reasoning words (because, since, therefore…) |
+| `mentionsBestPractices(output)` | Response mentions best practices or common patterns |
+| `isConcise(output)` | Response is under 2000 characters |
 
+Each function returns `{ pass, score, reason }` so promptfoo can display a meaningful failure message.
+
+**Adding your own functions:**
 ```javascript
-const evalScript = require('./eval-script.js');
-return evalScript.hasCodeFormatting(output);
+module.exports = {
+  yourCustomCheck: (output) => {
+    const pass = /* your logic */;
+    return { pass, score: pass ? 1 : 0, reason: 'Explanation shown on failure' };
+  }
+};
 ```
-
-The current configuration uses inline logic that mirrors these functions for compatibility with promptfoo's evaluation system.
 
 ## PowerShell Provider Scripts
 
