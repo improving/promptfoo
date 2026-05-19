@@ -9,18 +9,47 @@ prompts:
 
 # Use devin cli as a provider via script execution
 providers:
-  # Devin CLI provider (commented out for testing)
+  # ========================================
+  # BASH SHELL VERSIONS (Linux/Mac)
+  # ========================================
+  # Devin CLI provider (bash version)
   # - id: 'exec: ./devin_provider.sh'
   #   config:
   #     model: 'SWE-1.6'
 
-  # GitHub Copilot CLI provider (commented out for testing)
+  # GitHub Copilot CLI provider (bash version)
   # - id: 'exec: ./gh_copilot_provider.sh'
   #   config:
   #     model: 'claude-haiku-4.5'
 
-  # Claude Code CLI provider
-  - id: 'exec: ./claude_code_provider.sh'
+  # Claude Code CLI provider (bash version)
+  # - id: 'exec: ./claude_code_provider.sh'
+  #   config:
+  #     model: 'haiku'
+
+  # ========================================
+  # POWERSHELL VERSIONS (Windows)
+  # ========================================
+  # Claude Code CLI provider (PowerShell version) - TESTED ✓
+  # - id: 'exec: powershell -ExecutionPolicy Bypass -File ./claude_code_provider.ps1'
+  #   config:
+  #     model: 'haiku'
+
+  # Devin CLI provider (PowerShell version) - TESTED ✓
+  # - id: 'exec: powershell -ExecutionPolicy Bypass -File ./devin_provider.ps1'
+  #   config:
+  #     model: 'SWE-1.6'
+
+  # GitHub Copilot CLI provider (PowerShell version) - TESTED ✓
+  # - id: 'exec: powershell -ExecutionPolicy Bypass -File ./gh_copilot_provider.ps1'
+  #   config:
+  #     model: 'claude-haiku-4.5'
+
+  # ========================================
+  # CURRENTLY ACTIVE PROVIDER
+  # ========================================
+  # Uncomment one of the providers above to use it
+  - id: 'exec: powershell -ExecutionPolicy Bypass -File ./claude_code_provider.ps1'
     config:
       model: 'haiku'
 
