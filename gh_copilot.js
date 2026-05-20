@@ -6,7 +6,7 @@
 // - Provider mode: Prompt is plain text
 //
 // Grader: Parses JSON chat array, concatenates system + user messages (no --system-prompt)
-// Provider: Passes prompt directly to GitHub Copilot CLI
+// Provider: Passes prompt directly to the copilot executable
 
 const { spawnSync } = require('child_process');
 
@@ -60,16 +60,16 @@ if (isGraderMode) {
     userMsg = prompt;
   }
 
-  // Combine system and user into one prompt (gh copilot has no --system-prompt)
+  // Combine system and user into one prompt (copilot has no --system-prompt)
   const fullPrompt = `${systemMsg}\n\n${userMsg}`;
 
   // Build command with optional model flag
-  const args = ['copilot', '--prompt', fullPrompt, '--allow-all-tools', '--silent'];
+  const args = ['--prompt', fullPrompt, '--allow-all-tools', '--silent'];
   if (model) {
     args.push('--model', model);
   }
 
-  const result = spawnSync('gh', args, {
+  const result = spawnSync('copilot', args, {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe']
   });
@@ -102,12 +102,12 @@ if (isGraderMode) {
   }
 
   // Build command with optional model flag
-  const args = ['copilot', '--prompt', prompt, '--allow-all-tools', '--silent'];
+  const args = ['--prompt', prompt, '--allow-all-tools', '--silent'];
   if (model) {
     args.push('--model', model);
   }
 
-  const result = spawnSync('gh', args, {
+  const result = spawnSync('copilot', args, {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe']
   });
