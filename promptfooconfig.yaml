@@ -166,7 +166,7 @@ tests:
   # Syntax: file://path/to/script.js:functionName
 
   - vars:
-      request: 'Write a function to validate an email address'
+      request: 'Output a function to validate an email address'
     description: 'Email validation - script-based eval'
     assert:
       - type: javascript
