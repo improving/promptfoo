@@ -96,7 +96,7 @@ if (isGraderMode) {
   }
 
   // Call devin cli with single-turn mode and specified model
-  const result = spawnSync('devin', ['-p', '--model', model, '--', prompt], {
+  const result = spawnSync('devin', ['-p', '--permission-mode', 'auto', '--model', model, '--', prompt], {
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe']
   });

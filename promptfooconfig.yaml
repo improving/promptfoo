@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
 description: Evaluation Driven Development demonstration with promptfoo
 
-# Define prompts to test - using external prompt file for EDD
+# Define prompts to test - template that includes base prompt
 prompts:
-  - file://prompt-under-test.md
+  - "@prompt-under-test.md {{request}}"
 
 # External evaluation script for custom deterministic evaluations
 # This script contains custom assertion functions used in tests
@@ -63,7 +63,7 @@ tests:
   # DETERMINISTIC EVALUATIONS (contains/equiv)
   # ========================================
   - vars:
-      query: 'What is the difference between let and const in JavaScript?'
+      request: 'What is the difference between let and const in JavaScript?'
     description: 'JavaScript concepts - deterministic eval'
     assert:
       - type: contains
@@ -74,7 +74,7 @@ tests:
         value: 'reassign'
 
   - vars:
-      query: 'How do I reverse a string in Python?'
+      request: 'How do I reverse a string in Python?'
     description: 'Python coding - deterministic eval'
     assert:
       - type: contains
@@ -96,7 +96,7 @@ tests:
   # critical vs. nice-to-have criteria, and weight what matters most.
 
   - vars:
-      query: 'Explain the concept of recursion in programming'
+      request: 'Explain the concept of recursion in programming'
     description: 'Recursion explanation - rubric with per-dimension scoring'
     assert:
       # Core definition — highest weight; must score at least 0.7
@@ -128,7 +128,7 @@ tests:
         weight: 1
 
   - vars:
-      query: 'What are the best practices for error handling in JavaScript?'
+      request: 'What are the best practices for error handling in JavaScript?'
     description: 'Error handling best practices - rubric with per-dimension scoring'
     assert:
       # try-catch — fundamental pattern; high weight
@@ -166,7 +166,7 @@ tests:
   # Syntax: file://path/to/script.js:functionName
 
   - vars:
-      query: 'Write a function to validate an email address'
+      request: 'Write a function to validate an email address'
     description: 'Email validation - script-based eval'
     assert:
       - type: javascript
@@ -177,7 +177,7 @@ tests:
         value: file://eval-script.js:mentionsBestPractices
 
   - vars:
-      query: 'Explain the difference between == and === in JavaScript'
+      request: 'Explain the difference between == and === in JavaScript'
     description: 'Equality operators - script-based eval'
     assert:
       - type: javascript
