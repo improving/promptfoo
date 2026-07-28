@@ -88,7 +88,7 @@ devin -p -- "What is 2+2?"
 
 ## Usage in This Project
 
-This project uses `devin.js` which calls:
+This project uses `devinProvider.js` which calls:
 
 ```bash
 # Provider mode
@@ -96,6 +96,9 @@ devin -p --permission-mode auto --model SWE-1.6 -- "your prompt"
 
 # Grader mode
 devin -p --model SWE-1.6 -- "your prompt"
+
+# Provider Mode, with temp File prompting
+devin -p --permission-mode auto --model SWE-1.6 --file /path/to/prompt.txt
 ```
 
 ---

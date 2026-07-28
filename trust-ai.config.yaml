@@ -44,17 +44,23 @@ providers:
   # Provider mode: prompt is plain text
   #
   # Devin CLI provider
-  - id: 'exec: node ./devin.js'
+  - id: 'file://devinProvider.js'
     label: 'Devin SWE-1.6'
     config:
       model: 'SWE-1.6'
+      # forcePromptFile: false          # Set to true to always use temp files (default: false)
+      # trackTokens: true              # Enable token usage tracking via --export (default: true)
+      promptFileSizeThreshold: 15000  # Prompt size threshold in bytes to auto-use temp file (default: 32000 characters)
 
   # Devin CLI provider — For Testing a Second Model
   # MUST Use Label to differentiate providers with same ID (first in wins otherwise)
-  # - id: 'exec: node ./devin.js'
-  #   label: 'Devin Kimi' # MUST provide label when using same provider with different config!
+  # - id: 'file://devinProvider.js'
+  #   label: 'Devin Kimi'
   #   config:
   #     model: 'kimi-k2.7'
+  #     # forcePromptFile: false          # Set to true to always use temp files (default: false)
+  #     # trackTokens: true              # Enable token usage tracking via --export (default: true)
+  #     promptFileSizeThreshold: 15000  # Prompt size threshold in bytes to auto-use temp file (default: 32000 characters)
 
   # GitHub Copilot CLI provider
   # - id: 'exec: node ./gh_copilot.js'
