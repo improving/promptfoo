@@ -67,3 +67,23 @@ If you encounter issues:
 1. Check that your agentic AI tool is properly configured (e.g., Devin/Claude Code is installed and authenticated)
 2. Verify the config file has the correct provider settings (e.g., you have a `provider` clause for the AI tool you're using, and the `defaultTest` uses that provider)
 3. Run with verbose mode to see detailed output in "test.log": `npm run test:verbose trust-ai.config.yaml`
+
+
+If you hit something like:
+```
+Provider call failed during eval
+{
+    "providerId": "exec: node ./devin.js",
+    "providerLabel": "Devin SWE-1.6",
+    "promptIdx": 0,
+    "testIdx": 1,
+    "error": {
+        "name": "Error",
+        "message": "spawn ENAMETOOLONG"
+    }
+}
+```
+
+You may be hitting a path length limitation on your system. We are working on a fix for this. We have a working version for the devin provider that uses a different approach to handle long paths. PLease update the impacted provider in the config file to use `devinProvider.js` instead of `devin.js`.
+
+ 
