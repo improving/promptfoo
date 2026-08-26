@@ -131,4 +131,13 @@ tests:
         threshold: 0.7
         metric: non-functional-requirements
         weight: 1.50
+
+  - vars:
+      request: 'I want to extend an existing pomodoro app to ring with a customizable chime when the timer expires, and be able to change the chimes for the completion of a pomodoro, completion of rest, and indication when it is time for a long break.'
+    description: 'PRD Generation - Deterministic Scripts'
+    assert:
+      # PRD Sections
+      - type: javascript
+        value: file://eval-script.js:hasPRDSections
+
 outputPath: trust-ai/results.html

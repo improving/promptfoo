@@ -51,4 +51,29 @@ function isConcise(output) {
   return wordCount >= 50 && wordCount <= 500;
 }
 
-module.exports = { hasCodeFormatting, explainsWhy, mentionsBestPractices, isConcise };
+function hasPRDSections(output) {
+  const sections = [
+    'Vision',
+    'Goals',
+    'Personas',
+    'User Stories',
+    'Functional Requirements',
+    'Non-Functional Requirements',
+    'Metrics',
+    'Risks',
+  ];
+
+  const missingSections = sections.filter(section => !output.includes(section));
+
+  const score = (sections.length - missingSections.length) / sections.length;
+
+  return {
+    pass: score >= 0.7,
+    score: score,
+    reason: missingSections.length === 0 ? 'All PRD sections present' : `Missing sections: ${missingSections.join(', ')}`,
+  }
+
+  return sections.every(section => output.includes(section));
+}
+
+module.exports = { hasCodeFormatting, explainsWhy, mentionsBestPractices, isConcise, hasPRDSections };
