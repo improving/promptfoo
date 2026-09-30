@@ -14,6 +14,19 @@ const prompt = process.argv[2];
 const options = process.argv[3];
 const context = process.argv[4];
 
+let model;
+try {
+  const optionsObj = JSON.parse(options || '{}');
+  model = optionsObj.config?.model;
+  if (typeof model !== 'string' || !model.trim()) {
+    throw new Error('config.model must be a non-empty string');
+  }
+  model = model.trim();
+} catch (error) {
+  console.error(`Invalid Devin provider options: ${error.message}`);
+  process.exit(1);
+}
+
 // Detect mode: if prompt looks like a JSON array, use grader mode
 let isGraderMode = false;
 try {
@@ -27,20 +40,6 @@ try {
 
 if (isGraderMode) {
   // ===== GRADER MODE =====
-  // Parse OPTIONS to get model from config
-  let model = 'SWE-1.6'; // Default model
-  if (options && options !== '{}') {
-    try {
-      const optionsObj = JSON.parse(options);
-      if (optionsObj.config && optionsObj.config.model) {
-        model = optionsObj.config.model;
-      }
-    } catch (e) {
-      // If JSON parsing fails, use default
-      model = 'SWE-1.6';
-    }
-  }
-
   // Parse the JSON chat message array that promptfoo sends to graders
   let systemMsg, userMsg;
   try {
@@ -74,7 +73,7 @@ if (isGraderMode) {
   }
 
   if (result.status !== 0) {
-    console.error(result.stdout || result.stderr);
+    console.error(result.stderr || result.stdout);
     process.exit(result.status || 1);
   }
 
@@ -89,20 +88,6 @@ if (isGraderMode) {
   // console.log(result.stdout);
 } else {
   // ===== PROVIDER MODE =====
-  // Parse OPTIONS to get model from config
-  let model = 'SWE-1.6'; // Default model
-  if (options && options !== '{}') {
-    try {
-      const optionsObj = JSON.parse(options);
-      if (optionsObj.config && optionsObj.config.model) {
-        model = optionsObj.config.model;
-      }
-    } catch (e) {
-      // If JSON parsing fails, use default
-      model = 'SWE-1.6';
-    }
-  }
-
   // Call devin cli with single-turn mode and specified model
   const result = spawnSync('devin', ['-p', '--permission-mode', 'auto', '--model', model, '--', prompt], {
     encoding: 'utf8',
@@ -115,7 +100,7 @@ if (isGraderMode) {
   }
 
   if (result.status !== 0) {
-    console.error(result.stdout || result.stderr);
+    console.error(result.stderr || result.stdout);
     process.exit(result.status || 1);
   }
 
