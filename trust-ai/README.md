@@ -4,7 +4,7 @@ This directory contains the promptfoo configuration for evaluating AI models use
 
 ## Getting setup
 
-### Install NOde
+### Install Node
 Before you begin you will need to have Node and NPM installed. AT the time of writting, [Node v24](https://nodejs.org/en/download) is recommended.
 
 In the CLI, you can confirm node is properly setup by opening a NEW terminal (after your installation) and running:
