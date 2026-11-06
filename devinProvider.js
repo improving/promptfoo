@@ -63,9 +63,10 @@ class DevinProvider {
 
       const result = await new Promise((resolve, reject) => {
         const child = spawn('devin', args, {
-          encoding: 'utf8',
           stdio: ['pipe', 'pipe', 'pipe'],
         });
+        child.stdout.setEncoding('utf8');
+        child.stderr.setEncoding('utf8');
 
         let stdout = '';
         let stderr = '';

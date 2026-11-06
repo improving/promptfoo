@@ -43,33 +43,27 @@ providers:
   # Grader mode: prompt is JSON array [{role, content}, ...]
   # Provider mode: prompt is plain text
   #
-  # Devin CLI provider
-  - id: 'exec: node ./devin.js'
+  # Devin CLI provider — file-based (avoids ENAMETOOLONG on Windows for prompts >32k)
+  - id: 'file://devinProvider.js'
     label: 'Devin SWE-1.6'
     config:
       model: 'SWE-1.6'
 
-  # Devin CLI provider — file-based (fixes ENAMETOOLONG on Windows for prompts >32k)
-  #- id: 'file://devinProvider.js'
-  #  label: 'Devin SWE-1.6 (file provider)'
-  #  config:
-  #    model: 'SWE-1.6'
-
   # Devin CLI provider — For Testing a Second Model
   # MUST Use Label to differentiate providers with same ID (first in wins otherwise)
-  # - id: 'exec: node ./devin.js'
+  # - id: 'file://devinProvider.js'
   #   label: 'Haiku' # MUST provide label when using same provider with different config!
   #   config:
   #     model: 'claude-haiku-4.5'
 
   # GitHub Copilot CLI provider
-  # - id: 'exec: node ./gh_copilot.js'
+  # - id: 'file://copilotProvider.js'
   #   label: 'GitHub Haiku'
   #   config:
   #     model: 'claude-haiku-4.5'
 
   # Claude Code CLI provider
-  # - id: 'exec: node ./claude.js'
+  # - id: 'file://claudeProvider.js'
   #   label: 'Claude Haiku'
   #   config:
   #     model: 'haiku'

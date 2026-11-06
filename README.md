@@ -16,12 +16,12 @@ promptfoo/
 ├── eval-script.js               # Custom JavaScript evaluation functions
 ├── AGENTS.md                    # Project configuration notes
 │
-└── CLI Scripts (Cross-platform)
-    ├── claude.js                # Claude Code CLI (provider + grader)
-    ├── devin.js                 # Devin CLI (provider + grader)
-    ├── gh_copilot.js            # GitHub Copilot CLI (provider + grader)
-    ├── agy.js                   # Google Antigravity (AGY) CLI (provider + grader)
-    └── kiro.js                  # Kiro CLI (provider + grader)
+└── Provider Files (loaded by promptfoo via file://)
+    ├── claudeProvider.js        # Claude Code CLI (provider + grader)
+    ├── devinProvider.js         # Devin CLI (provider + grader)
+    ├── copilotProvider.js       # GitHub Copilot CLI (provider + grader)
+    ├── agy.js                   # Google Antigravity (AGY) CLI (exec, not yet converted)
+    └── kiro.js                  # Kiro CLI (exec, not yet converted)
 ```
 
 ## Quick Start
@@ -31,7 +31,7 @@ promptfoo/
 npx promptfoo eval --no-cache
 ```
 
-> **Always use `--no-cache`** when running evaluations. This project uses external script files (`devin.js`, `claude.js`, etc.) and an external prompt file (`prompt-under-test.md`). Promptfoo's cache keys are based on the provider string and prompt text — they do not detect changes inside referenced files. Running without `--no-cache` can return stale results after you modify a script or the prompt file.
+> **Always use `--no-cache`** when running evaluations. This project uses external provider files (`devinProvider.js`, `claudeProvider.js`, etc.) and an external prompt file (`prompt-under-test.md`). Promptfoo's cache keys are based on the provider string and prompt text — they do not detect changes inside referenced files. Running without `--no-cache` can return stale results after you modify a script or the prompt file.
 
 ### View Results
 Results are generated in `results.html` after each evaluation run.
@@ -42,24 +42,24 @@ Results are generated in `results.html` after each evaluation run.
 The configuration currently uses **Devin CLI** as the default provider for both generating responses and grading rubric evaluations.
 
 ### Available Providers
-All scripts are cross-platform Node.js files that work on Windows, Linux, and Mac:
+The file-based providers are Node.js modules that work on Windows, Linux, and Mac:
 
-- **Claude Code CLI** (`claude.js`) - Anthropic's Claude Code assistant
-- **Devin CLI** (`devin.js`) - Cognition's Devin AI assistant
-- **GitHub Copilot CLI** (`gh_copilot.js`) - GitHub's Copilot assistant
+- **Claude Code CLI** (`claudeProvider.js`) - Anthropic's Claude Code assistant
+- **Devin CLI** (`devinProvider.js`) - Cognition's Devin AI assistant
+- **GitHub Copilot CLI** (`copilotProvider.js`) - GitHub's Copilot assistant
 - **Google Antigravity CLI** (`agy.js`) - Google's Antigravity assistant
 - **Kiro CLI** (`kiro.js`) - Amazon's Kiro AI assistant
 
 To switch providers, edit `promptfooconfig.yaml` and uncomment the desired provider.
 
-### How the Scripts Work
+### How the Providers Work
 
-Each CLI script combines both provider and grader functionality in one file, auto-detecting the mode based on prompt format:
+Each file-based provider exposes `callApi(prompt)`, which auto-detects the mode from the prompt format:
 
-- **Provider mode**: When the prompt is plain text, the script acts as a provider and passes the text directly to the CLI tool
-- **Grader mode**: When the prompt is a JSON array `[{role, content}, ...]`, the script acts as a grader, parsing the chat array and routing system/user messages appropriately
+- **Provider mode**: When the prompt is plain text, the provider passes the text to the CLI tool
+- **Grader mode**: When the prompt is a JSON array `[{role, content}, ...]`, the provider parses the chat array and combines or routes the system/user messages for the CLI tool
 
-This eliminates the need for separate provider and grader scripts while maintaining full functionality.
+Prompts never go on the command line for Claude (stdin), Devin (temp file), or Copilot (temp file), so long grader prompts don't hit the Windows `ENAMETOOLONG` limit.
 
 ## Evaluation Types
 
@@ -87,7 +87,7 @@ Uses a judge LLM to score the response against natural language criteria. Each a
 
 #### Grader Provider
 
-The judge LLM is configured under `defaultTest.options.provider`. This project uses `devin.js` (which auto-detects grader mode), but the combined scripts for Claude, GitHub Copilot, Google Antigravity (AGY), and Kiro are also available.
+The judge LLM is configured under `defaultTest.options.provider`. This project uses `devinProvider.js` (which auto-detects grader mode), but the file-based providers for Claude and GitHub Copilot are also available, as are the exec-based Google Antigravity (AGY) and Kiro scripts.
 
 > **How grader mode works**: When the combined scripts receive a JSON chat array
 > (`[{"role":"system",...}, {"role":"user",...}]`), they automatically enter grader mode,
@@ -193,17 +193,9 @@ module.exports = {
 
 For example, the `matchSchema-script.js` file contains a function that checks if the output matches a given JSON schema, and demonstrates how a custom function might be added. 
 
-## Running Scripts Directly
+## Testing Providers Directly
 
-You can test the CLI scripts directly to verify functionality:
-
-```bash
-# Provider mode (plain text prompt)
-node ./devin.js "What is 2+2?" '{"config": {"model": "SWE-1.6"}}' "context"
-
-# Grader mode (JSON array prompt)
-node ./devin.js '[{"role":"system","content":"You are an evaluator..."},{"role":"user","content":"Test message"}]' '{}'
-```
+To test a provider without a full eval, run a single prompt against it with `npx promptfoo eval --no-cache` using a small config that points at the provider file, e.g. `providers: ['file://devinProvider.js']`.
 
 ## Prompt Under Test
 

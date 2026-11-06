@@ -5,8 +5,10 @@ This repository contains promptfoo configuration for evaluating AI CLI tools.
 ## Important: Default Configuration
 
 **Before committing any changes, always ensure that Devin CLI is set as the default:**
-- **Provider**: `node ./devin.js`
-- **Grader**: `node ./devin.js`
+- **Provider**: `file://devinProvider.js` (label `Devin SWE-1.6`)
+- **Grader**: the `Devin SWE-1.6` provider label, set in `defaultTest.options.provider`
+
+The grader is referenced by label, not by file path, so the provider's `model` config carries through to grading. Do not replace it with a bare `file://devinProvider.js` path, which drops that config.
 
 This ensures consistent evaluation results and maintains the intended baseline configuration.
 
@@ -16,16 +18,19 @@ This ensures consistent evaluation results and maintains the intended baseline c
 - `prompt-under-test.md` - The prompt being evaluated
 - `eval-script.js` - Custom JavaScript evaluation functions
 
-## CLI Scripts (Cross-platform)
+## Provider Files
 
+Providers are loaded with `file://` so prompts reach the code through the JS API, not the command line. This avoids Windows `ENAMETOOLONG` errors on long grader prompts.
+
+- `devinProvider.js` - Devin CLI (provider + grader)
+- `copilotProvider.js` - GitHub Copilot CLI (provider + grader)
+- `claudeProvider.js` - Claude Code CLI (provider + grader)
+
+### Other Scripts (exec, not yet converted)
 Combined scripts that auto-detect mode based on prompt format:
 - **Grader mode**: Prompt is JSON array `[{role, content}, ...]`
 - **Provider mode**: Prompt is plain text
 
-### Active Scripts
-- `devin.js` - Devin CLI (provider + grader)
-- `gh_copilot.js` - GitHub Copilot CLI (provider + grader)
-- `claude.js` - Claude Code CLI (provider + grader)
 - `agy.js` - Google Antigravity (AGY) CLI (provider + grader)
 - `kiro.js` - Kiro CLI (provider + grader)
 - `ollama.js` - Local Ollama instance (provider + grader)
