@@ -6,7 +6,7 @@
   "scripts": {
     "test": "promptfoo eval --no-cache --config ",
     "test:providers": "node --test tests/providers.test.js",
-    "test:verbose": "node -e \"const arg = process.argv[1]; require('child_process').execSync(`promptfoo eval --no-cache --verbose --config ${arg} > test.log`, { stdio: 'inherit' });\" --",
+    "test:verbose": "node -e \"const arg=process.argv[1]; require('child_process').execSync('promptfoo eval --no-cache --verbose --config '+arg+' > test.log',{stdio:'inherit'})\" --",
     "view": "promptfoo view"
   }
 }
