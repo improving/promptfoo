@@ -1,6 +1,6 @@
 # GitHub Copilot CLI Installation
 
-GitHub Copilot CLI (`copilot`) is GitHub's AI coding assistant for the terminal. The `copilot` command is used by `gh_copilot.js` in this project.
+GitHub Copilot CLI (`copilot`) is GitHub's AI coding assistant for the terminal. The `copilot` command is used by `copilotProvider.js` in this project.
 
 > **Important:** This project uses the standalone `copilot` CLI — **not** the `gh copilot` extension for the GitHub CLI. Make sure you install the correct package as described below.
 
@@ -100,13 +100,13 @@ copilot -p "What is 2+2?" -s
 
 ## Usage in This Project
 
-This project uses `gh_copilot.js` which calls the `copilot` executable (not `gh copilot`):
+This project uses `copilotProvider.js`, which calls the `copilot` executable (not `gh copilot`). `copilot -p` ignores piped stdin, so the prompt is written to a temp file and copilot is told to read it:
 
 ```bash
-copilot --prompt "your prompt" --allow-all-tools --silent
+copilot -p "Read the file <tempfile> and follow the instructions in it." --allow-all-tools --add-dir <tmpdir> --silent
 ```
 
-On Windows the script routes through `cmd.exe /c copilot` to resolve the `.cmd` shim correctly — no manual workaround needed.
+`--add-dir` limits file access to the temp directory. The project no longer uses `cmd.exe` routing; `copilot.exe` is spawned directly.
 
 ---
 

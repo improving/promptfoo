@@ -1,6 +1,6 @@
 # Claude Code CLI Installation
 
-Claude Code is Anthropic's AI coding assistant for the terminal. The `claude` command is used by `claude.js` in this project.
+Claude Code is Anthropic's AI coding assistant for the terminal. The `claude` command is used by `claudeProvider.js` in this project.
 
 ## Requirements
 
@@ -93,15 +93,16 @@ claude -p "What is 2+2?"
 
 ## Usage in This Project
 
-This project uses `claude.js` which calls:
+This project uses `claudeProvider.js`, which sends the user prompt on stdin and passes the system prompt in a temp file:
 
 ```bash
-# Provider mode
-claude -p "your prompt" --model haiku
+# Provider mode (prompt on stdin)
+echo "your prompt" | claude -p --model haiku
 
-# Grader mode (with system prompt)
-claude -p "user message" --system-prompt "system instructions" --model haiku
+# Grader mode (system prompt via file)
+echo "user message" | claude -p --model haiku --system-prompt-file <tempfile>
 ```
+
 
 ---
 

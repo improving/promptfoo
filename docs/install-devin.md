@@ -1,6 +1,6 @@
 # Devin CLI Installation
 
-Devin for Terminal is a local coding agent that runs directly in your terminal. The `devin` command is used by `devin.js` in this project.
+Devin for Terminal is a local coding agent that runs directly in your terminal. The `devin` command is used by `devinProvider.js` in this project.
 
 ## Requirements
 
@@ -88,15 +88,13 @@ devin -p -- "What is 2+2?"
 
 ## Usage in This Project
 
-This project uses `devin.js` which calls:
+This project uses `devinProvider.js` which writes the prompt to a temp file and calls:
 
 ```bash
-# Provider mode
-devin -p --permission-mode auto --model SWE-1.6 -- "your prompt"
-
-# Grader mode
-devin -p --model SWE-1.6 -- "your prompt"
+devin -p --prompt-file <tempfile> --model SWE-1.6 --export <exportfile>
 ```
+
+Provider mode adds `--permission-mode auto`.
 
 ---
 
