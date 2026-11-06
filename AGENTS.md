@@ -5,8 +5,10 @@ This repository contains promptfoo configuration for evaluating AI CLI tools.
 ## Important: Default Configuration
 
 **Before committing any changes, always ensure that Devin CLI is set as the default:**
-- **Provider**: `file://devinProvider.js`
-- **Grader**: `file://devinProvider.js`
+- **Provider**: `file://devinProvider.js` (label `Devin SWE-1.6`)
+- **Grader**: the `Devin SWE-1.6` provider label, set in `defaultTest.options.provider`
+
+The grader is referenced by label, not by file path, so the provider's `model` config carries through to grading. Do not replace it with a bare `file://devinProvider.js` path, which drops that config.
 
 This ensures consistent evaluation results and maintains the intended baseline configuration.
 
