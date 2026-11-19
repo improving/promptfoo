@@ -19,10 +19,10 @@ defaultTest:
     # Specify the Provider by the Label from the providers section.
     #
     # Devin CLI grader — ACTIVE
-    provider: 'Devin SWE-1.6'
+    provider: "Devin SWE-1.6"
     #
     # GitHub Copilot CLI grader
-    # provider: 'Github Haiku'
+    # provider: 'GitHub Haiku'
     #
     # Claude Code CLI grader
     # provider: 'Claude Haiku'
@@ -44,10 +44,10 @@ providers:
   # Provider mode: prompt is plain text
   #
   # Devin CLI provider
-  - id: 'exec: node ./devin.js'
-    label: 'Devin SWE-1.6'
+  - id: "exec: node ./devin.js"
+    label: "Devin SWE-1.6"
     config:
-      model: 'SWE-1.6'
+      model: "SWE-1.6"
 
   # Devin CLI provider — For Testing a Second Model
   # MUST Use Label to differentiate providers with same ID (first in wins otherwise)
@@ -86,15 +86,15 @@ tests:
   # DETERMINISTIC EVALUATIONS (contains/equiv)
   # ========================================
   - vars:
-      request: 'I want to extend an existing pomodoro app to ring with a customizable chime when the timer expires, and be able to change the chimes for the completion of a pomodoro, completion of rest, and indication when it is time for a long break.'
-    description: 'Pomodoro app chime customization - deterministic eval'
+      request: "I want to extend an existing pomodoro app to ring with a customizable chime when the timer expires, and be able to change the chimes for the completion of a pomodoro, completion of rest, and indication when it is time for a long break."
+    description: "Pomodoro app chime customization - deterministic eval"
     assert:
       - type: icontains
-        value: 'pomodoro'
+        value: "pomodoro"
       - type: icontains
-        value: 'requirement'
+        value: "requirement"
       - type: icontains
-        value: 'custom'
+        value: "custom"
 
   # ========================================
   # RUBRIC-BASED EVALUATIONS WITH SCORING
@@ -108,8 +108,8 @@ tests:
   # critical vs. nice-to-have criteria, and weight what matters most.
 
   - vars:
-      request: 'I want to extend an existing pomodoro app to ring with a customizable chime when the timer expires, and be able to change the chimes for the completion of a pomodoro, completion of rest, and indication when it is time for a long break.'
-    description: 'PRD Generation - rubric with per-dimension scoring'
+      request: "I want to extend an existing pomodoro app to ring with a customizable chime when the timer expires, and be able to change the chimes for the completion of a pomodoro, completion of rest, and indication when it is time for a long break."
+    description: "PRD Generation - rubric with per-dimension scoring"
     assert:
       # Core definition — highest weight; must score at least 0.7
       - type: llm-rubric
